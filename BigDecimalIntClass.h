@@ -42,8 +42,9 @@ private:
     char sign;
     bool checkvalid_realnumber(string number);
 public:
-    BigReal (){}; // Default constructor
+    BigReal () : rn("0.0"){}; // Default constructor
     BigReal (string realNumber);
+    BigReal (double realNumber);
     BigReal (BigDecimalInt bigInteger);
     BigReal (const BigReal& other); // Copy constructor
     BigReal (BigReal&& other); // Move constructor
