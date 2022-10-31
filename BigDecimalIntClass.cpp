@@ -356,12 +356,13 @@ ostream &operator << (ostream &out, BigDecimalInt num)
     return out;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
+                            // Checking input
 bool BigReal::checkvalid_realnumber(string number) {
     regex valid_input("[-+]?[0-9]+[.]+[0-9]+");
     return regex_match(number, valid_input);
 }
 //______________________________________________________
+                            // Declaring numbers
 BigReal::BigReal(string realNumber){
     bool valid_realnumber = checkvalid_realnumber(realNumber);
     if (valid_realnumber) {
@@ -387,3 +388,36 @@ BigReal::BigReal(string realNumber){
     }
 }
 //_____________________________________________________
+                    //Assinment Operator
+BigReal &BigReal::operator=(BigReal &other) {
+    sign = other.sign;
+    rn = other.rn;
+    return *this;
+}
+//______________________________________________________
+BigReal::BigReal(const BigReal &other) {
+    sign = other.sign;
+    rn = other.rn;
+}
+//______________________________________________________
+BigReal::BigReal(double realNumber) {
+    rn = to_string(realNumber);
+    cout << rn;
+}
+//______________________________________________________
+BigReal::BigReal(BigReal &&other) {
+    this->rn = other.rn;
+    other.rn = nullptr;
+}
+//______________________________________________________
+BigReal &BigReal::operator=(BigReal &&other) {
+        this -> rn = other.rn;
+        other.rn = nullptr;
+    return *this;
+}
+//______________________________________________________
+BigReal::BigReal(BigDecimalInt bigInteger) {
+        sign = bigInteger.Sign();
+        rn = bigInteger.getnum();
+}
+//______________________________________________________
