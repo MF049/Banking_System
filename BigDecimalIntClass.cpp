@@ -421,3 +421,213 @@ BigReal::BigReal(BigDecimalInt bigInteger) {
         rn = bigInteger.getnum();
 }
 //______________________________________________________
+string add(string num1,string num2) {
+    int pos = num1.find("."), pos2 = num2.find(".");
+    num1.erase(remove(num1.begin(), num1.end(),'.'),num1.end());
+    num2.erase(remove(num2.begin(), num2.end(),'.'),num2.end());
+    const int chk =num1.length() , chk2 =num2.length();
+    int fchk;
+    if (chk>chk2)
+        fchk = chk;
+    else
+        fchk = chk2;
+
+    auto it1 = num1.rbegin();
+    auto it2 = num2.rbegin();
+    string res = "";
+    int carry = 0;
+
+    while (it1 != num1.rend())
+    {
+        int twoDigitsSum;
+        carry = 0;
+        twoDigitsSum = ((*it1 - '0') + (*it2 - '0'));
+
+        if (twoDigitsSum >= 10)
+        {
+            carry = 1;
+        }
+        res = char((twoDigitsSum % 10) + '0') + res;
+        *(it1 + 1) = char(((*(it1 + 1) - '0') + carry) + '0');
+        it1++;
+        it2++;
+    }
+    if (carry)
+    {
+        res = char((carry) + '0') + res;
+    }
+        if (res.length() > fchk)
+            pos++;
+        res.insert(pos, ".");
+        return res;
+
+
+    }
+
+
+//___________________________________________________________
+string sub(string num1,string num2){
+    int pos = num1.find("."), pos2 = num2.find(".");
+    num1.erase(remove(num1.begin(), num1.end(),'.'),num1.end());
+    num2.erase(remove(num2.begin(), num2.end(),'.'),num2.end());
+    const int chk =num1.length() , chk2 =num2.length();
+    int fchk; //this var is ref for "." after the addition to know "." position
+    if (chk>chk2)
+        fchk = chk;
+    else
+        fchk = chk2;
+    deque<long long>d;
+    string res;
+
+    for (long long i = num1.length() - 1; i >= 0; i--)
+    {
+        if (num1[i] < num2[i])
+        {
+            num1[i] = char (((num1[i] - '0') + 10) + '0');
+            num1[i - 1] = char (((num1[i - 1] - '0') - 1) + '0');
+            d.push_front((num1[i] - '0') - (num2[i] - '0'));
+        }
+        else
+        {
+            d.push_front((num1[i] - '0') - (num2[i] - '0'));
+        }
+    }
+
+    for (auto i : d)
+    {
+        res += to_string(i);
+    }
+    if (res.length() > fchk)
+        pos++;
+    res.insert(pos, ".");
+    return res;
+}
+//____________________________________________________________
+    BigReal BigReal::operator+(BigReal &other) {
+        BigReal rs;
+        char sigNum1 = sign, sigNum2 = other.sign;
+        string num1 = rn, num2 = other.rn;
+        BigReal number1 = *this;
+        int pos = num1.find("."), pos2 = num2.find(".");
+
+          while (pos != pos2) {
+            
+            if (pos == pos2) {
+                break;
+            } else if (pos < pos2) {
+
+
+                num1 = '0' + num1;
+                pos++;
+            } else if (pos > pos2) {
+                num2 = '0' + num2;
+                pos2++;
+            } }
+            
+            while (num1.length() != num2.length()){
+              if (num1.length() > num2.length()) {
+                   num2 = num2 + '0';
+              }
+                 else if (num1.length() < num2.length()) {
+                num1 = num1 + '0';
+                }
+         } 
+        if (sigNum1 == sigNum2) {
+            rs.sign = sigNum1;
+            rs.rn = add(num1, num2);
+        }
+    return rs;
+    }
+    //-------------------------------------------------------------
+    BigReal BigReal :: operator - (BigReal & other)
+    {
+        BigReal obj;
+        deque<long long> d;
+        string strmin = "", rs = "";
+        string num1 = rn, num2 = other.rn;
+        char sign1 = sign, sign2 = other.sign;
+        long long  pos = num1.find("."), pos2 = num2.find(".");
+
+        while (pos != pos2) {
+
+            if (pos == pos2) {
+                break;
+            } else if (pos < pos2) {
+
+
+                num1 = '0' + num1;
+                pos++;
+            } else if (pos > pos2) {
+                num2 = '0' + num2;
+                pos2++;
+            } }
+
+        while (num1.length() != num2.length()){
+            if (num1.length() > num2.length()) {
+                num2 = num2 + '0';
+            }
+            else if (num1.length() < num2.length()) {
+                num1 = num1 + '0';
+            }
+        }
+
+        bool ok = false, is_determined = false;
+        if (num1 < num2)
+        {
+            swap(num1, num2);
+            swap(sign1, sign2);
+            ok = true;
+        }
+
+        if (sign1 == sign2 )
+        {
+            rs = sub(num1,num2);
+
+            if(sign1=='-')ok = !ok;
+        }
+        else
+        {
+            rs = addition(num1,num2);
+            if(sign == '-')
+            {
+                obj.sign = '-';
+                is_determined = true;
+            }
+            else
+            {
+                obj.sign = '+';
+                is_determined = true;
+            }
+
+        }
+
+        bool right = false;
+        for (long long i = 0; i < rs.length(); i++)
+        {
+            if (rs[i] != '-' && rs[i] != '0')
+            {
+                right = true;
+            }
+            if (!right && rs[i] == '0')
+            {
+                rs.erase(i, 1);
+                i--;
+            }
+        }
+
+        if(rs.empty()) rs = "0";
+        if (!is_determined && (ok))
+        {
+            obj.sign = '-';
+        }
+        else if(!is_determined)
+        {
+            obj.sign = '+';
+        }
+
+        obj.rn=rs;
+        return obj;
+
+
+    }
+
