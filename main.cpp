@@ -3,8 +3,6 @@
 int main() {
     BigReal a("+3.5");
     BigReal b("-4.5");
-    cout << a.getnum() << endl;
-    cout << b.getnum();
 
     /*
        BigDecimalInt input(n1), input3(n2);

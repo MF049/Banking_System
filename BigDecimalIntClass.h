@@ -40,9 +40,9 @@ class BigReal{
 private:
     string rn;
     char sign;
-    bool checkvalid_realnumber(string number);
 public:
-    BigReal () : rn("0.0"){}; // Default constructor
+    static bool checkvalid_realnumber(string number);
+    BigReal () : rn("0.0"), sign('+'){}; // Default constructor
     BigReal (string realNumber);
     BigReal (double realNumber);
     BigReal (BigDecimalInt bigInteger);
@@ -50,8 +50,23 @@ public:
     BigReal (BigReal&& other); // Move constructor
     BigReal& operator= (BigReal& other); // Assignment operator
     BigReal& operator= (BigReal&& other); // Move assignment
+    // ------
     BigReal operator+ (BigReal& other);
-    BigReal operator- (BigReal& other); 
+    BigReal operator- (BigReal& other);
+    // ------
+    bool operator< (BigReal anotherReal);
+    bool operator> (BigReal anotherReal);
+    bool operator== (BigReal anotherReal);
+    int size();
+    int Sign();
+    friend ostream& operator << (ostream& out, BigReal num);
+    friend istream& operator >> (istream& out, BigReal &num);
+    void improve(BigReal anotherReal, string* fx1, string* fx2, string* fr1, string* fr2);
+
+    // method to initializing object after declare it
+    void init(const string& no) {
+        rn = no;
+    }
     string getnum()
     {
         return rn;

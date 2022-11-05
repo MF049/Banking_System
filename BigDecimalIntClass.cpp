@@ -358,7 +358,7 @@ ostream &operator << (ostream &out, BigDecimalInt num)
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
                             // Checking input
 bool BigReal::checkvalid_realnumber(string number) {
-    regex valid_input("[-+]?[0-9]+[.]+[0-9]+");
+    regex valid_input("[-+]?[0-9]+[.][0-9]+");
     return regex_match(number, valid_input);
 }
 //______________________________________________________
@@ -511,7 +511,7 @@ string sub(string num1,string num2){
         int pos = num1.find("."), pos2 = num2.find(".");
 
           while (pos != pos2) {
-            
+
             if (pos == pos2) {
                 break;
             } else if (pos < pos2) {
@@ -523,7 +523,7 @@ string sub(string num1,string num2){
                 num2 = '0' + num2;
                 pos2++;
             } }
-            
+
             while (num1.length() != num2.length()){
               if (num1.length() > num2.length()) {
                    num2 = num2 + '0';
@@ -531,7 +531,7 @@ string sub(string num1,string num2){
                  else if (num1.length() < num2.length()) {
                 num1 = num1 + '0';
                 }
-         } 
+         }
         if (sigNum1 == sigNum2) {
             rs.sign = sigNum1;
             rs.rn = add(num1, num2);
@@ -630,4 +630,217 @@ string sub(string num1,string num2){
 
 
     }
+
+
+//------------------------------------------
+
+/* function that add zeros left to the fixed number and right to the
+ * fraction nubmers to make the length the same to compare correctly */
+void BigReal::improve(BigReal anotherReal, string* fx1, string* fx2, string* fr1, string* fr2) {
+    string zeros;
+    int pos1, pos2;
+    long long len1, len2;
+
+    // set the len1, len2 to the whole number length
+    len1 = rn.length();
+    len2 = anotherReal.rn.length();
+
+    // find the index of the dot
+    pos1 = rn.find('.');
+    pos2 = anotherReal.rn.find('.');
+
+    // set values of num1
+    *fx1 = rn.substr(0, pos1);
+    *fr1 = rn.substr(pos1 + 1, abs((int) len1 - (pos1 + 1)));
+
+    // set values of num2
+    *fx2 = anotherReal.rn.substr(0, pos2);
+    *fr2 = anotherReal.rn.substr(pos2 + 1, abs((int) len2 - (pos2 + 1)));
+
+
+    // change len1, len2 values to fixed
+    len1 = fx1->length();
+    len2 = fx2->length();
+
+    // add zeros to the fixed numbers
+    while(len1 < len2) {
+        zeros += "0";
+        len1++;
+    }
+    zeros += *fx1;
+    *fx1 = zeros;
+
+    // empty the var to use it again
+    zeros = "";
+
+    while(len2 < len1) {
+        zeros += "0";
+        len2++;
+    }
+    zeros += *fx2;
+    *fx2 = zeros;
+
+    // empty the var to use it again
+    zeros = "";
+
+    //--------------------------------------
+
+    // change len1, len2 values to fraction
+    len1 = fr1->length();
+    len2 = fr2->length();
+
+    // add zeros to the fraction numbers
+    while(len1 < len2) {
+        zeros += '0';
+        len1++;
+    }
+    *fr1 += zeros;
+
+    // empty the var to use it again
+    zeros = "";
+
+    while(len2 < len1) {
+        zeros += '0';
+        len2++;
+    }
+    *fr2 += zeros;
+
+
+}
+
+
+
+//--------------------------------------------------
+bool BigReal::operator<(BigReal anotherReal) {
+    string fixed1, frac1, fixed2, frac2;
+
+    /* function that add zeros left to the fixed number and right to the
+     * fraction nubmers to make the length the same to compare correctly */
+    improve(anotherReal, &fixed1, &fixed2, &frac1, &frac2);
+
+    // comparison
+    if (sign == '+' && anotherReal.sign == '-') {
+        return false;
+    } else if (sign == '-' && anotherReal.sign == '+') {
+        return true;
+    } else if (sign == '+' && anotherReal.sign == '+') {
+
+        if( (fixed1 < fixed2) || (fixed1 == fixed2 && frac1 < frac2) ) {
+            return true;
+        }
+
+    } else {
+        if((fixed1 > fixed2) || (fixed1 == fixed2 && frac1 > frac2)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+//______________________________________________________
+
+bool BigReal::operator>(BigReal anotherReal) {
+    string fixed1, frac1, fixed2, frac2;
+
+    improve(anotherReal, &fixed1, &fixed2, &frac1, &frac2);
+
+    // comparison
+    if (sign == '+' && anotherReal.sign == '-') {
+        return true;
+    } else if (sign == '-' && anotherReal.sign == '+') {
+        return false;
+    } else if (sign == '+' && anotherReal.sign == '+') {
+
+        if( (fixed1 > fixed2) || (fixed1 == fixed2 && frac1 > frac2) ) {
+            return true;
+        }
+
+    } else {
+        if((fixed1 < fixed2) || (fixed1 == fixed2 && frac1 < frac2)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool BigReal::operator== (BigReal anotherReal){
+    string fixed1, frac1, fixed2, frac2;
+
+    improve(anotherReal, &fixed1, &fixed2, &frac1, &frac2);
+
+    // comparison
+    if(sign == anotherReal.sign) {
+        if(fixed1 == fixed2 && frac1 == frac2) {
+            return true;
+        }
+    }
+    return false;
+
+}
+
+//-------------------------------------------
+int BigReal::Sign() {
+    if(sign == '+') {
+        return 1;
+    } else {
+        return 0;
+    }
+
+}
+
+//-------------------------------------------
+int BigReal::size() {
+    return rn.length();
+
+}
+
+//-------------------------------------------
+ostream& operator << (ostream& out, BigReal num) {
+    if(num.sign == '+')
+    {
+        out << num.rn ;
+    } else {
+        if(num.rn == "0") {
+            out << num.rn ;
+        } else {
+            out << num.sign << num.rn ;
+        }
+    }
+
+    return out;
+}
+
+
+//------------------------------------------------
+istream& operator >> (istream& out, BigReal &num){
+    bool isValid; string temp;
+
+    out >> temp;
+    isValid =  BigReal::checkvalid_realnumber(temp);
+
+    if(isValid) {
+        num.init(temp);
+
+        if (num.rn[0] == '-') {
+            num.sign = '-';
+            num.rn.erase(0, 1);
+        } else if (num.rn[0] == '+') {
+            num.sign = '+';
+            num.rn.erase(0, 1);
+        } else {
+            num.sign = '+';
+        }
+    } else {
+        cout << "invalid real number";
+        exit(0);
+    }
+
+
+    return out;
+
+}
+
+
+
 
